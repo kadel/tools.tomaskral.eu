@@ -17,6 +17,18 @@ yarn install
 yarn dev
 ```
 
+### Testing
+```bash
+# Run all tests
+yarn test
+
+# Run tests in watch mode
+yarn test:watch
+
+# Run tests with coverage report
+yarn test:coverage
+```
+
 ### Docker
 ```bash
 # Build the image
@@ -95,9 +107,15 @@ const toolsRegistry = {
 ├── README.md
 ├── package.json
 ├── Dockerfile
-└── src/
-    ├── index.js            # Main application
-    ├── routes.js           # Route definitions
-    └── tools/
-        └── yaml-to-json.js # Tool implementations
+├── TOOLS.md               # API documentation (rendered at /)
+├── jest.config.js         # Jest testing configuration
+├── src/
+│   ├── index.js           # Main application
+│   ├── routes.js          # Route definitions
+│   └── tools/
+│       └── yaml-to-json.js # Tool implementations
+└── tests/
+    ├── setup.js           # Test setup and utilities
+    ├── api.test.js        # API endpoint tests
+    └── yaml-to-json.test.js # YAML converter tests
 ```
