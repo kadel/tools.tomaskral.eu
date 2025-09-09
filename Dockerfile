@@ -1,12 +1,15 @@
 FROM node:22-alpine
 
+# Enable Yarn
+RUN corepack enable
+
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json yarn.lock .yarnrc.yml ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN yarn install --immutable
 
 # Copy source code
 COPY src/ ./src/
@@ -15,7 +18,7 @@ COPY src/ ./src/
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 -G nodejs
 
-# Change ownership
+# Change ownership of app directory
 RUN chown -R nodejs:nodejs /app
 
 # Switch to non-root user
@@ -29,4 +32,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["yarn", "start"]

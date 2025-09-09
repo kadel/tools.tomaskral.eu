@@ -13,17 +13,19 @@ A simple REST API providing useful online tools. Single Node.js container for ea
 
 ### Local Development
 ```bash
-npm install
-npm run dev
+yarn install
+yarn dev
 ```
 
 ### Docker
 ```bash
 # Build the image
-docker build -t tools-api .
+yarn docker:build
+# or manually: docker build -t tools-api .
 
 # Run the container
-docker run -p 3000:3000 tools-api
+yarn docker:run
+# or manually: docker run -p 3000:3000 tools-api
 
 # Run in background
 docker run -d -p 3000:3000 --name tools-api tools-api
