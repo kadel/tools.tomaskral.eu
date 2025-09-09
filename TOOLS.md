@@ -24,22 +24,25 @@ curl -X POST https://tools.tomaskral.eu/yaml-to-json \
   -d '{"url": "https://example.com/config.yaml"}'
 ```
 
-**Response Format:**
+**Success Response:**
+Returns the converted JSON directly without wrapping:
 ```json
 {
-  "success": true,
-  "data": {
-    "converted": "yaml content as json"
-  },
-  "metadata": {
-    "sourceUrl": "https://example.com/config.yaml",
-    "contentType": "text/yaml",
-    "convertedAt": "2025-09-09T12:00:00.000Z"
+  "name": "example",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.18.2"
   }
 }
 ```
 
-**Error Response:**
+**Error Responses:**
+- **400 Bad Request:** Missing or invalid URL
+- **404 Not Found:** URL could not be reached
+- **422 Unprocessable Entity:** Invalid YAML content
+- **500 Internal Server Error:** Server error
+
+Error format:
 ```json
 {
   "error": "Invalid YAML format",
@@ -87,13 +90,14 @@ curl "https://tools.tomaskral.eu/yaml-to-json?url=https://raw.githubusercontent.
 curl "https://tools.tomaskral.eu/yaml-to-json?url=https://raw.githubusercontent.com/actions/starter-workflows/main/ci/node.js.yml"
 ```
 
-## Error Handling
+## HTTP Status Codes
 
-The API handles various error conditions:
+The API uses proper HTTP status codes:
 
+- **200 OK:** Successful conversion, returns clean JSON
 - **400 Bad Request:** Invalid URL format or missing URL parameter
 - **404 Not Found:** URL could not be reached
-- **400 Bad Request:** Invalid YAML content
+- **422 Unprocessable Entity:** Invalid YAML content
 - **500 Internal Server Error:** Unexpected server errors
 
 All errors return JSON with `error` and `message` fields for debugging.
