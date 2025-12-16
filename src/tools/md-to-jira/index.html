@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to Jira Converter - tools.tomaskral.eu</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">&larr; Back to Tools</a>
+
+        <h1>Markdown to Jira Converter</h1>
+        <p class="description">Convert Markdown text to Jira wiki markup syntax.</p>
+
+        <form id="convertForm">
+            <label for="markdown">Markdown Text</label>
+            <textarea id="markdown" name="markdown" placeholder="# Hello World
+
+**Bold** and *italic* text
+
+- List item 1
+- List item 2
+
+`inline code`"></textarea>
+            <button type="submit" id="submitBtn">Convert to Jira</button>
+        </form>
+
+        <div id="resultSection" class="result-section">
+            <div class="result-label">
+                Jira Markup
+                <button type="button" class="copy-btn" id="copyBtn">Copy</button>
+            </div>
+            <pre class="result-content" id="resultContent"></pre>
+        </div>
+
+        <div id="errorSection" class="error"></div>
+
+        <div class="docs-section" id="docsSection">
+            <h2 id="docsToggle">API Documentation</h2>
+            <div class="docs-content" id="docsContent">
+                <p>Loading documentation...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/shared.js"></script>
+    <script>
+        new ToolPage({
+            toolName: 'md-to-jira',
+            apiEndpoint: '/api/v1/md-to-jira',
+            submitButtonText: 'Convert to Jira',
+            loadingText: 'Converting...',
+            validateInput: () => {
+                const markdown = document.getElementById('markdown').value;
+                if (!markdown.trim()) return 'Please enter some Markdown text';
+                return null;
+            },
+            getRequestBody: () => ({ markdown: document.getElementById('markdown').value }),
+            formatResult: (data) => data.jira
+        });
+    </script>
+</body>
+</html>

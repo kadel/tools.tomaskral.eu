@@ -12,7 +12,6 @@ COPY package.json yarn.lock .yarnrc.yml ./
 RUN yarn install --immutable
 
 # Copy documentation and source code
-COPY TOOLS.md ./
 COPY src/ ./src/
 
 # Create non-root user

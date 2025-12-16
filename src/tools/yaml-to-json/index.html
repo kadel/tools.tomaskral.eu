@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML to JSON Converter - tools.tomaskral.eu</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .input-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1rem;
+        }
+        .input-tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            background: #f7fafc;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #4a5568;
+            transition: all 0.2s;
+        }
+        .input-tab:first-child {
+            border-radius: 6px 0 0 6px;
+        }
+        .input-tab:last-child {
+            border-radius: 0 6px 6px 0;
+            border-left: none;
+        }
+        .input-tab.active {
+            background: #4299e1;
+            color: white;
+            border-color: #4299e1;
+        }
+        .input-tab:hover:not(.active) {
+            background: #edf2f7;
+        }
+        .input-panel {
+            display: none;
+        }
+        .input-panel.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">&larr; Back to Tools</a>
+
+        <h1>YAML to JSON Converter</h1>
+        <p class="description">Convert YAML content to JSON format - from a URL or paste directly.</p>
+
+        <form id="convertForm">
+            <div class="input-tabs">
+                <button type="button" class="input-tab active" data-panel="url-panel">From URL</button>
+                <button type="button" class="input-tab" data-panel="yaml-panel">Paste YAML</button>
+            </div>
+
+            <div id="url-panel" class="input-panel active">
+                <label for="url">YAML URL</label>
+                <input type="url" id="url" name="url" placeholder="https://example.com/config.yaml">
+                <div class="examples">
+                    <h3>Example URLs:</h3>
+                    <a class="example-link" data-url="https://raw.githubusercontent.com/docker/compose/v2/docs/reference/compose_spec.yaml">Docker Compose Spec</a>
+                    <a class="example-link" data-url="https://raw.githubusercontent.com/kubernetes/examples/master/guestbook/frontend-deployment.yaml">Kubernetes Deployment</a>
+                </div>
+            </div>
+
+            <div id="yaml-panel" class="input-panel">
+                <label for="yaml">YAML Content</label>
+                <textarea id="yaml" name="yaml" placeholder="name: my-project
+version: 1.0.0
+dependencies:
+  - express
+  - cors
+config:
+  port: 3000
+  debug: true"></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn">Convert to JSON</button>
+        </form>
+
+        <div id="resultSection" class="result-section">
+            <div class="result-label">
+                JSON Output
+                <button type="button" class="copy-btn" id="copyBtn">Copy</button>
+            </div>
+            <pre class="result-content scrollable" id="resultContent"></pre>
+        </div>
+
+        <div id="errorSection" class="error"></div>
+
+        <div class="docs-section" id="docsSection">
+            <h2 id="docsToggle">API Documentation</h2>
+            <div class="docs-content" id="docsContent">
+                <p>Loading documentation...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/shared.js"></script>
+    <script>
+        // Tab switching logic
+        const tabs = document.querySelectorAll('.input-tab');
+        const panels = document.querySelectorAll('.input-panel');
+        let activePanel = 'url-panel';
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const panelId = tab.dataset.panel;
+                activePanel = panelId;
+
+                tabs.forEach(t => t.classList.remove('active'));
+                panels.forEach(p => p.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(panelId).classList.add('active');
+            });
+        });
+
+        new ToolPage({
+            toolName: 'yaml-to-json',
+            apiEndpoint: '/api/v1/yaml-to-json',
+            submitButtonText: 'Convert to JSON',
+            loadingText: 'Converting...',
+            validateInput: () => {
+                if (activePanel === 'url-panel') {
+                    const url = document.getElementById('url').value;
+                    if (!url.trim()) return 'Please enter a YAML URL';
+                } else {
+                    const yaml = document.getElementById('yaml').value;
+                    if (!yaml.trim()) return 'Please enter some YAML content';
+                }
+                return null;
+            },
+            getRequestBody: () => {
+                if (activePanel === 'url-panel') {
+                    return { url: document.getElementById('url').value };
+                } else {
+                    return { yaml: document.getElementById('yaml').value };
+                }
+            },
+            formatResult: (data) => JSON.stringify(data, null, 2)
+        });
+    </script>
+</body>
+</html>

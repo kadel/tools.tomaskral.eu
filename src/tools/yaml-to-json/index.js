@@ -5,34 +5,43 @@ async function yamlToJson(req, res) {
   try {
     // Support both POST body and GET query parameter
     const url = req.body?.url || req.query.url;
-    
-    if (!url) {
-      return res.status(400).json({ 
-        error: 'URL is required',
-        message: 'Please provide a URL pointing to a YAML file as query parameter (?url=...) or in POST body'
-      });
-    }
+    const yaml = req.body?.yaml || req.query.yaml;
 
-    // Validate URL format
-    try {
-      new URL(url);
-    } catch (error) {
+    if (!url && !yaml) {
       return res.status(400).json({
-        error: 'Invalid URL format',
-        message: 'Please provide a valid URL'
+        error: 'URL or YAML content is required',
+        message: 'Please provide a URL pointing to a YAML file or YAML content directly'
       });
     }
 
-    // Fetch YAML content from URL
-    const response = await axios.get(url, {
-      headers: {
-        'User-Agent': 'online-tools-api/1.0.0'
-      },
-      timeout: 10000
-    });
+    let yamlContent;
+
+    if (yaml) {
+      // Use provided YAML string directly
+      yamlContent = yaml;
+    } else {
+      // Validate URL format
+      try {
+        new URL(url);
+      } catch (error) {
+        return res.status(400).json({
+          error: 'Invalid URL format',
+          message: 'Please provide a valid URL'
+        });
+      }
+
+      // Fetch YAML content from URL
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'online-tools-api/1.0.0'
+        },
+        timeout: 10000
+      });
+
+      yamlContent = response.data;
+    }
 
     // Parse YAML to JavaScript object
-    const yamlContent = response.data;
     const jsonObject = YAML.parse(yamlContent);
 
     // Return clean JSON response
@@ -40,7 +49,7 @@ async function yamlToJson(req, res) {
 
   } catch (error) {
     console.error('YAML conversion error:', error.message);
-    
+
     if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
       return res.status(404).json({
         error: 'Unable to fetch URL',
@@ -51,7 +60,7 @@ async function yamlToJson(req, res) {
     if (error.name === 'YAMLParseError') {
       return res.status(422).json({
         error: 'Invalid YAML format',
-        message: 'The content at the provided URL is not valid YAML'
+        message: 'The provided content is not valid YAML'
       });
     }
 
